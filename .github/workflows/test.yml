@@ -115,11 +115,16 @@ jobs:
     if: ${{ needs.GENERATE_MATRIX.outputs.branches != '[]' }}
     name: ${{ matrix.branch.name }}
     uses: ./.github/workflows/test-suite.yml
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
         branch: ${{ fromJson(needs.GENERATE_MATRIX.outputs.branches) }}
     with:
+      leg: ${{ inputs.leg }}
+      profile: ${{ inputs.profile || 'curiosity-tests-racecar' }}
       all_variations: ${{ needs.GENERATE_MATRIX.outputs.all_variations == 'true' }}
       branch: ${{ toJSON(matrix.branch) }}
     secrets: inherit
