@@ -66,12 +66,12 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.url || github.run_id }}-${{ inputs.leg || 'push' }}-${{ inputs.racecar_run }}
   cancel-in-progress: false
 env:
-  CHALK_ON: ${{ github.event_name == 'workflow_dispatch' && inputs.leg != 'baseline' }}
+  CHALK_ON: ${{ inputs.leg == 'instrumented' }}
 
 jobs:
   GENERATE_MATRIX:
     name: Generate Matrix
-    if: github.repository == 'php/php-src' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: github.repository == 'curiosity-tests/php-src' || 'push' == 'pull_request' || 'push' == 'workflow_dispatch'
     runs-on: ubuntu-latest
     outputs:
       all_variations: ${{ steps.set-matrix.outputs.all_variations }}
@@ -86,7 +86,7 @@ jobs:
           # When running nightly, set fetch-depth to 0 to clone the full
           # repository including all branches. This is required to find the
           # correct commit hashes.
-          fetch-depth: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '0' || '1' }}
+          fetch-depth: ${{ ('push' == 'schedule' || 'push' == 'workflow_dispatch') && '0' || '1' }}
 
       - name: Assert instrumentation is live
         # Socket existence, not LD_PRELOAD: co-monitor's loader clears
@@ -98,7 +98,7 @@ jobs:
           test -S "${CURIOSITY_SOCKET_NAME:?socket name unset}" || { echo "::error::co-hostd socket absent"; exit 1; }
 
       - name: Grab the commit mapping
-        if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+        if: ${{ 'push' == 'schedule' || 'push' == 'workflow_dispatch' }}
         uses: actions/cache@v5
         with:
           path: branch-commit-cache.json
@@ -109,7 +109,7 @@ jobs:
             nightly-
       - name: Generate Matrix
         id: set-matrix
-        run: php .github/matrix.php "${{ github.event_name }}" "${{ github.run_attempt }}" "${{ github.event_name == 'pull_request' && github.ref || github.ref_name }}" '${{ toJSON(github.event.pull_request.labels) }}' "${{ github.repository }}"
+        run: php .github/matrix.php "${{ 'push' }}" "${{ github.run_attempt }}" "${{ 'push' == 'pull_request' && github.ref || github.ref_name }}" '${{ toJSON(github.event.pull_request.labels) }}' "${{ github.repository }}"
   TEST:
     needs: GENERATE_MATRIX
     if: ${{ needs.GENERATE_MATRIX.outputs.branches != '[]' }}
