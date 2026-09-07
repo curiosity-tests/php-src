@@ -71,7 +71,11 @@ env:
 jobs:
   GENERATE_MATRIX:
     name: Generate Matrix
-    if: github.repository == 'php/php-src' || 'push' == 'pull_request' || 'push' == 'workflow_dispatch'
+    # racecar: github.event_name restored here only. Upstream deliberately admits
+    # non-canonical repos on pull_request/workflow_dispatch; freezing event_name to
+    # 'push' turned both clauses false, so the whole run skipped and reported
+    # success. The identity clause is untouched.
+    if: github.repository == 'php/php-src' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     outputs:
       all_variations: ${{ steps.set-matrix.outputs.all_variations }}
