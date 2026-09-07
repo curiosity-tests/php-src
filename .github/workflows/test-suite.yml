@@ -426,7 +426,10 @@ jobs:
       - name: Extra tests
         uses: ./.github/actions/extra-tests
   MACOS:
-    if: ${{ fromJson(inputs.branch).jobs.MACOS }}
+    # racecar: non-Linux leg, out of scope for the Linux measurement (cf.
+    # LINUX_PPC64 above). matrix.php enables it on any run lacking the
+    # "CI: No jobs" label. Was: ${{ fromJson(inputs.branch).jobs.MACOS }}
+    if: false
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(inputs.branch).jobs.MACOS.matrix }}
@@ -1045,7 +1048,10 @@ jobs:
       - name: Verify generated files are up to date
         uses: ./.github/actions/verify-generated-files
   WINDOWS:
-    if: ${{ fromJson(inputs.branch).jobs.WINDOWS }}
+    # racecar: non-Linux leg, out of scope for the Linux measurement (cf.
+    # LINUX_PPC64 above). matrix.php enables it on any run lacking the
+    # "CI: No jobs" label. Was: ${{ fromJson(inputs.branch).jobs.WINDOWS }}
+    if: false
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(inputs.branch).jobs.WINDOWS.matrix }}
@@ -1093,7 +1099,10 @@ jobs:
       - name: Test
         run: .github/scripts/windows/test.bat
   FREEBSD:
-    if: ${{ fromJson(inputs.branch).jobs.FREEBSD }}
+    # racecar: non-Linux leg, out of scope for the Linux measurement (cf.
+    # LINUX_PPC64 above). matrix.php enables it on any run lacking the
+    # "CI: No jobs" label. Was: ${{ fromJson(inputs.branch).jobs.FREEBSD }}
+    if: false
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(inputs.branch).jobs.FREEBSD.matrix }}
